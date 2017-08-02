@@ -17,7 +17,7 @@ public class UploadController {
     private UploadService uploadService;
 
     @RequestMapping("/upload")
-    public String upload(MultipartFile pictureFile, @RequestParam("description")String description) throws Exception {
+    public String upload(@RequestParam("file")MultipartFile pictureFile, @RequestParam("description")String description) throws Exception {
         String FILEPATH = "C:\\Users\\ShawyerPeng\\Desktop\\pictures\\";
         String originalFilename = "";
         String newFileName = "";
@@ -37,6 +37,28 @@ public class UploadController {
         }
 
         uploadService.insertFile(originalFilename, FILEPATH+newFileName, description);
+
+        return "index";
+    }
+
+    @RequestMapping("/uploadMultipart")
+    public String uploadMultipart(@RequestParam("file")MultipartFile[] pictureFile, @RequestParam("description")String description) throws Exception {
+        String FILEPATH = "C:\\Users\\ShawyerPeng\\Desktop\\pictures\\";
+        String originalFilename = "";
+        String newFileName = "";
+
+        //进行图片的上传
+        for (int i = 0; i<pictureFile.length; i++) {
+            if (pictureFile[i]!=null && pictureFile[i].getOriginalFilename()!=null && pictureFile[i].getOriginalFilename().length()>0) {
+                originalFilename = pictureFile[i].getOriginalFilename();
+                newFileName = UUID.randomUUID() + originalFilename.substring(originalFilename.lastIndexOf("."));
+
+                File file = new File(FILEPATH + newFileName);
+
+                pictureFile[i].transferTo(file);
+            }
+            uploadService.insertFile(originalFilename, FILEPATH+newFileName, description);
+        }
 
         return "index";
     }
